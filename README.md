@@ -55,4 +55,4 @@ You can use FEN notation to record and share specific chess positions and use th
 # Screenshot
 Here we have project screenshot :
 
-![screenshot]([screenshot.jpg](https://github.com/AndyMagwayer/Chess-game/blob/main/Screenshot%202023-09-01%20200909.png)https://github.com/AndyMagwayer/Chess-game/blob/main/Screenshot%202023-09-01%20200909.png)
+![screenshot](https://github.com/AndyMagwayer/Chess-game/blob/main/Screenshot%202023-09-01%20200909.png)
