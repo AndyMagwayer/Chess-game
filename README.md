@@ -1,4 +1,7 @@
 # Chess-game
+Here we have project screenshot :
+
+![screenshot](https://github.com/AndyMagwayer/Chess-game/blob/main/Screenshot%202023-09-01%20200909.png)
 
 ### Chess Game (VS Computer)
 
@@ -53,7 +56,3 @@ This FEN represents a specific board position where it's White's turn to move, b
 
 You can use FEN notation to record and share specific chess positions and use them for various purposes, including setting up custom positions for analysis or practice.
 
-# Screenshot
-Here we have project screenshot :
-
-![screenshot](https://github.com/AndyMagwayer/Chess-game/blob/main/Screenshot%202023-09-01%20200909.png)
