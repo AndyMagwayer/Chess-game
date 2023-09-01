@@ -5,6 +5,7 @@
 I am gonna showing to you how to code a chess game with javascript. in this javascript chess game you can play with computer, flip board and set position. in this code you will learn to use chessboardjs and chess.js library❗️
 
 ## Deploy:
+https://chess-game-magamed.netlify.app/
 
 # FEN Notation
 
