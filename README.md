@@ -1,7 +1,7 @@
 # Chess-game
 Here we have project screenshot :
 
-![screenshot](https://github.com/AndyMagwayer/Chess-game/blob/main/Screenshot%202023-09-01%20200909.png)
+![screenshot](https://github.com/AndyMagwayer/Chess-game/blob/main/4-9-23.png)
 
 ### Chess Game (VS Computer)
 
