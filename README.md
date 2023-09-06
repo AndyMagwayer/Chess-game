@@ -14,7 +14,7 @@ https://chess-game-magamed.netlify.app/
 
 ![screenshot](https://github.com/AndyMagwayer/Chess-game/blob/main/Screenshot%202023-09-01%20200909.png)
 
-FEN (Forsyth-Edwards Notation) is a standard notation used to represent a particular chessboard position. It provides a concise and human-readable way to describe the placement of chess pieces on the board, as well as other important information about the position. Here's how FEN notation works:
+FEN (Forsyth-Edwards Notation) is a standard notation used to represent a particular chessboard position. It provides a concise and human-readable way to describe the placement of chess pieces on the board, as well as other important information about the position. Here's how FEN notation works such as:
 
 A FEN string consists of six fields separated by spaces:
 
