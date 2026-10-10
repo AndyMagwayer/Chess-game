@@ -1,0 +1,127 @@
+name: Daily Chess Game Check
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-chess-check-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate project files
+        id: checks
+        shell: bash
+        run: |
+          set -u
+          failures=0
+          for file in index.html main.css script.js; do
+            if [ -f "$file" ]; then
+              echo "PASS: $file exists"
+            else
+              echo "FAIL: $file is missing"
+              failures=1
+            fi
+          done
+
+          if [ -f script.js ]; then
+            if node --check script.js; then
+              echo "PASS: JavaScript syntax"
+            else
+              echo "FAIL: JavaScript syntax"
+              failures=1
+            fi
+          fi
+
+          if [ -f index.html ]; then
+            for asset in main.css script.js; do
+              if grep -Fq "$asset" index.html; then
+                echo "PASS: index.html references $asset"
+              else
+                echo "WARN: index.html does not reference $asset"
+              fi
+            done
+          fi
+
+          {
+            echo "timestamp=$(date -u '+%Y-%m-%d %H:%M UTC')"
+            echo "failures=$failures"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Automated Maintenance Log"
+            echo
+            echo "| Timestamp (UTC) | Result | Details |"
+            echo "|---|---|---|"
+            echo "| $(date -u '+%Y-%m-%d %H:%M UTC') | $([ "$failures" -eq 0 ] && echo PASS || echo FAIL) | Required files and JavaScript syntax checked |"
+          } > maintenance-results.md
+
+          exit "$failures"
+
+      - name: Record daily check in README
+        if: always()
+        shell: bash
+        env:
+          CHECK_OUTCOME: ${{ steps.checks.outcome }}
+        run: |
+          if ! grep -q '^## Automated Maintenance Log$' README.md 2>/dev/null; then
+            printf '\n\n## Automated Maintenance Log\n\n| Timestamp (UTC) | Workflow outcome | Details |\n|---|---|---|\n' >> README.md
+          fi
+          timestamp="$(date -u '+%Y-%m-%d %H:%M UTC')"
+          details="Required files and JavaScript syntax checked"
+          printf '| %s | %s | %s |\n' "$timestamp" "$CHECK_OUTCOME" "$details" >> README.md
+          {
+            echo "### Chess Game — daily check"
+            echo "- Timestamp (UTC): $timestamp"
+            echo "- Workflow outcome: $CHECK_OUTCOME"
+            cat maintenance-results.md 2>/dev/null || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit maintenance report
+        if: always()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "No README maintenance changes to commit."
+            exit 0
+          fi
+          git commit -m "ci: record daily chess game check [skip ci]"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
+
+      - name: Send Telegram report if configured
+        if: always()
+        shell: bash
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          CHECK_OUTCOME: ${{ steps.checks.outcome }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "Telegram skipped: configure TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID repository secrets."
+            exit 0
+          fi
+          text="Daily check: Chess Game
+          Repository: ${GITHUB_REPOSITORY}
+          Result: ${CHECK_OUTCOME}
+          Commit: ${GITHUB_SHA}"
+          curl --fail --silent --show-error -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" -d "chat_id=${TELEGRAM_CHAT_ID}" --data-urlencode "text=${text}"
+
+      - name: Fail workflow if checks failed
+        if: always() && steps.checks.outcome == 'failure'
+        run: exit 1
